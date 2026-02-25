@@ -7,17 +7,29 @@ import { FileRecord } from './disk.js';
 
 // Integrity digest type definitions
 
+/**
+ * An object that represents an integrity digest of a given version.
+ */
 type IntegrityDigest<Version extends number, AdditionalParams> =
   | { used: false }
   | ({ used: true; version: Version } & AdditionalParams);
 
+/**
+ * A v1 integrity digest.
+ */
 type IntegrityDigestV1 = IntegrityDigest<1, { sha256Digest: Buffer }>;
 
+/**
+ * A map type of all integrity digest versions.
+ */
 type DigestByVersion = {
   1: IntegrityDigestV1;
   // Add new versions here
-}
+};
 
+/**
+ * A union of all integrity digest versions.
+ */
 type AnyIntegrityDigest = DigestByVersion[keyof DigestByVersion];
 
 // Integrity digest calculation functions
@@ -69,7 +81,7 @@ const UnknownIntegrityDigestVersionError = class extends Error {
   }
 };
 
-// Integrity digest storage and retrieval functions
+// Integrity digest storage and retrieval helpers
 
 /**
  * @see https://github.com/electron/electron/blob/2d5597b1b0fa697905380184e26c9f0947e05c5d/shell/common/asar/integrity_digest.mm#L24
@@ -149,7 +161,16 @@ function sentinelIndexToDigest<T extends AnyIntegrityDigest>(
   }
 }
 
-function calculateIntegrityDigestForApp<Version extends keyof DigestByVersion>(
+// Integrity digest storage and retrieval functions (API)
+
+
+/**
+ * Calculates the integrity digest for the app.
+ * @param appPath - The path to the app bundle.
+ * @param version - The version of the integrity digest to calculate.
+ * @returns The integrity digest for the app.
+ */
+export function calculateIntegrityDigestForApp<Version extends keyof DigestByVersion>(
   appPath: string,
   version: Version,
 ): DigestByVersion[Version] {
@@ -164,7 +185,12 @@ function calculateIntegrityDigestForApp<Version extends keyof DigestByVersion>(
   }
 }
 
-async function getStoredIntegrityDigestForApp<T extends AnyIntegrityDigest>(
+/**
+ * Gets the stored integrity digest for the app.
+ * @param appPath - The path to the app bundle.
+ * @returns The stored integrity digest for the app.
+ */
+export async function getStoredIntegrityDigestForApp<T extends AnyIntegrityDigest>(
   appPath: string,
 ): Promise<T> {
   let lastDigestFound: T | null = null;
@@ -183,7 +209,13 @@ async function getStoredIntegrityDigestForApp<T extends AnyIntegrityDigest>(
   return lastDigestFound;
 }
 
-async function setStoredIntegrityDigestForApp<T extends AnyIntegrityDigest>(
+/**
+ * Sets the stored integrity digest for the app.
+ * @param appPath - The path to the app bundle.
+ * @param digest - The integrity digest to set.
+ * @returns The stored integrity digest for the app.
+ */
+export async function setStoredIntegrityDigestForApp<T extends AnyIntegrityDigest>(
   appPath: string,
   digest: T,
 ): Promise<void> {
