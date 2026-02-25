@@ -53,6 +53,9 @@ const UnknownIntegrityDigestVersionError = class extends Error {
 
 // Integrity digest storage and retrieval functions
 
+/**
+ * @see https://github.com/electron/electron/blob/2d5597b1b0fa697905380184e26c9f0947e05c5d/shell/common/asar/integrity_digest.mm#L24
+ */
 const INTEGRITY_DIGEST_SENTINEL = 'AGbevlPCksUGKNL8TSn7wGmJEuJsXb2A';
 
 function pathToIntegrityDigestFile(appPath: string) {
