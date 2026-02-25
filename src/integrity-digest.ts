@@ -163,7 +163,6 @@ function sentinelIndexToDigest<T extends AnyIntegrityDigest>(
 
 // Integrity digest storage and retrieval functions (API)
 
-
 /**
  * Calculates the integrity digest for the app.
  * @param appPath - The path to the app bundle.
