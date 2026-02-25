@@ -72,10 +72,10 @@ program.command('extract <archive> <dest>')
     extractAll(archive, dest)
   })
 
-program.command('integrity-digest <app> <command>')
+program.command('integrity-digest <command> <app>')
   .alias('id')
   .description('manage integrity digest in app binary (macOS only)')
-  .action(async function (app, command) {
+  .action(async function (command, app) {
     // No platform guard just in case users want to run this on other platforms
     const allowedCommands = ['on', 'off', 'status', 'verify']
     switch (command) {
