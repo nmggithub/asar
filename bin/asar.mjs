@@ -74,8 +74,9 @@ program.command('extract <archive> <dest>')
 
 program.command('integrity-digest <app> <command>')
   .alias('id')
-  .description('manage integrity digest in app binary')
+  .description('manage integrity digest in app binary (macOS only)')
   .action(async function (app, command) {
+    // No platform guard just in case users want to run this on other platforms
     const allowedCommands = ['on', 'off', 'status', 'verify']
     switch (command) {
       case 'on': await enableIntegrityDigestForApp(app)
