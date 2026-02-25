@@ -279,7 +279,7 @@ function printDigest(digest: AnyIntegrityDigest, prefix: string = '') {
       digestLogger('\tDigest (SHA256): %s', digest.sha256Digest.toString('hex'));
       break;
     default:
-      digestLogger('\tUnknown metadata for digest version: %d', digest.version);
+      digestLogger('\tUnexpected digest version: %d. Cannot print digest.', digest.version);
   }
 }
 
