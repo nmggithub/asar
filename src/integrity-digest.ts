@@ -13,7 +13,12 @@ type IntegrityDigest<Version extends number, AdditionalParams> =
 
 type IntegrityDigestV1 = IntegrityDigest<1, { sha256Digest: Buffer }>;
 
-type AnyIntegrityDigest = IntegrityDigestV1; // Extend this union type as new versions are added
+type DigestByVersion = {
+  1: IntegrityDigestV1;
+  // Add new versions here
+}
+
+type AnyIntegrityDigest = DigestByVersion[keyof DigestByVersion];
 
 // Integrity digest calculation functions
 
@@ -144,7 +149,13 @@ function sentinelIndexToDigest<T extends AnyIntegrityDigest>(
   }
 }
 
-function calculateIntegrityDigestForApp(appPath: string, version: number): AnyIntegrityDigest {
+function calculateIntegrityDigestForApp<Version extends keyof DigestByVersion>(
+  appPath: string,
+  version: Version,
+): DigestByVersion[Version] {
+  if (version !== 1) {
+    throw new UnknownIntegrityDigestVersionError(version);
+  }
   switch (version) {
     case 1:
       return calculateIntegrityDigestV1ForApp(appPath);
