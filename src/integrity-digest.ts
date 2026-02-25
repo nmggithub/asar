@@ -19,6 +19,13 @@ type AnyIntegrityDigest = IntegrityDigestV1; // Extend this union type as new ve
 
 type AsarIntegrity = Record<string, Pick<FileRecord['integrity'], 'algorithm' | 'hash'>>;
 
+/**
+ * Calculates the v1 integrity digest for the app.
+ * @see https://github.com/electron/electron/blob/2d5597b1b0fa697905380184e26c9f0947e05c5d/shell/common/asar/integrity_digest.mm#L52-L66
+ * @param asarIntegrity - The integrity information for the app.
+ * @returns The v1 integrity digest for the app.
+ *
+ */
 function calculateIntegrityDigestV1(asarIntegrity: AsarIntegrity): IntegrityDigestV1 {
   const integrityHash = crypto.createHash('SHA256');
   for (const key of Object.keys(asarIntegrity).sort()) {
@@ -34,6 +41,12 @@ function calculateIntegrityDigestV1(asarIntegrity: AsarIntegrity): IntegrityDige
   };
 }
 
+/**
+ * Reads the integrity information from the Info.plist of the given app
+ *  bundle and calculates the v1 integrity digest for the app.
+ * @param appPath - The path to the app bundle.
+ * @returns The v1 integrity digest for the app.
+ */
 function calculateIntegrityDigestV1ForApp(appPath: string): IntegrityDigestV1 {
   const plistPath = path.join(appPath, 'Contents', 'Info.plist');
   const plistBuffer = fs.readFileSync(plistPath);
@@ -131,6 +144,15 @@ function sentinelIndexToDigest<T extends AnyIntegrityDigest>(
   }
 }
 
+function calculateIntegrityDigestForApp(appPath: string, version: number): AnyIntegrityDigest {
+  switch (version) {
+    case 1:
+      return calculateIntegrityDigestV1ForApp(appPath);
+    default:
+      throw new UnknownIntegrityDigestVersionError(version);
+  }
+}
+
 async function getStoredIntegrityDigestForApp<T extends AnyIntegrityDigest>(
   appPath: string,
 ): Promise<T> {
@@ -222,7 +244,7 @@ function printDigest(digest: AnyIntegrityDigest, prefix: string = '') {
 export async function enableIntegrityDigestForApp(appPath: string): Promise<void> {
   try {
     console.log('Calculating integrity digest...');
-    const digest = calculateIntegrityDigestV1ForApp(appPath);
+    const digest = calculateIntegrityDigestForApp(appPath, 1);
     console.log('Turning integrity digest ON...');
     await setStoredIntegrityDigestForApp(appPath, digest);
     console.log('Integrity digest turned ON');
@@ -260,7 +282,7 @@ export async function verifyIntegrityDigestForApp(appPath: string): Promise<void
       console.log('Integrity digest is off, verification SKIPPED');
       return;
     }
-    const calculatedDigest = calculateIntegrityDigestV1ForApp(appPath);
+    const calculatedDigest = calculateIntegrityDigestForApp(appPath, 1);
     if (doDigestsMatch(storedDigest, calculatedDigest)) {
       console.log('Integrity digest verification PASSED');
     } else {
